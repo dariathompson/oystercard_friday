@@ -4,7 +4,6 @@ class Journey
   PENALTY_FARE = 6
   def initialize(station)
     @entry_station = station
-    @exit_station
   end
 
   def finish(station)

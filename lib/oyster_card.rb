@@ -8,7 +8,6 @@ class OysterCard
   def initialize
     @balance = 0
     @min_charge = MIN_CHARGE
-    #@entry_station
     @history = []
     @journey = nil
   end
@@ -23,11 +22,12 @@ class OysterCard
   end
 
   def tap_in(station)
+    fail "insufficient balance" if balance < MIN_BALANCE
       deduct(Journey::PENALTY_FARE) if @journey
       @journey = Journey.new(station)
-      fail "insufficient balance" if balance < MIN_BALANCE
+
   end
-  
+
   def tap_out(station)
     #deduct(Journey::PENALTY_FARE) if !@journey
     if @journey
