@@ -1,6 +1,7 @@
 require_relative 'journey'
+require_relative 'journey_log'
 class OysterCard
-  attr_reader :balance, :fare, :history, :journey
+  attr_reader :balance, :fare, :journey, :journey_log
   MIN_BALANCE = 1
   MAX_BALANCE = 90
   MIN_CHARGE = 1
@@ -8,8 +9,8 @@ class OysterCard
   def initialize
     @balance = 0
     @min_charge = MIN_CHARGE
-    @history = []
     @journey = nil
+    @journey_log = JourneyLog.new
   end
 
   def check_balance
@@ -24,20 +25,18 @@ class OysterCard
   def tap_in(station)
     fail "insufficient balance" if balance < MIN_BALANCE
       deduct(Journey::PENALTY_FARE) if @journey
-      @journey = Journey.new(station)
+      @journey_log.start(station)
 
   end
 
   def tap_out(station)
     #deduct(Journey::PENALTY_FARE) if !@journey
-    if @journey
-      @journey.finish(station)
-      deduct(@journey.fare)
-      push_history
+    if @journey_log
+      @journey_log.finish(station)
+      deduct(@journey_log.calculate_fare)
     else
       deduct(Journey::PENALTY_FARE)
     end
-    @journey = nil
   end
 
   def in_journey?
@@ -45,9 +44,7 @@ class OysterCard
   end
 
   private
-  def push_history
-    @history << { in: @journey.entry_station, exit: @journey.exit_station }
-  end
+
   def deduct(fare)
     @balance -= fare
   end
